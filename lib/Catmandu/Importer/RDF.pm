@@ -16,6 +16,7 @@ use RDF::aREF::Encoder;
 use RDF::NS;
 use IO::Pipe;
 use JSON;
+use LWP::UserAgent;
 use LWP::UserAgent::CHICaching;
 
 our $VERSION = '0.32';
@@ -95,10 +96,16 @@ has speed => (
 sub BUILD {
     my ($self) = @_;
 
-    if ($self->cache) {
+    if ( $self->cache ) {
         my $options = $self->cache_options // {};
-        my $cache = CHI->new( %$options );
-        my $ua = LWP::UserAgent::CHICaching->new(cache => $cache);
+        my $cache   = CHI->new(%$options);
+        my $ua      = LWP::UserAgent::CHICaching->new( cache => $cache );
+        $ua->env_proxy;
+        RDF::Trine->default_useragent($ua);
+    }
+    else {
+        my $ua = LWP::UserAgent->new();
+        $ua->env_proxy;
         RDF::Trine->default_useragent($ua);
     }
 }

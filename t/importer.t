@@ -60,4 +60,16 @@ foreach my $file (qw(t/example.ttl t/example.rdf)) {
     is_deeply $importer->first, $expect, 'round-trip export-import-export';
 }
 
+{
+    my $importer = importer( 'RDF', url => 'http://example.org/' );
+    $ENV{'https_proxy'} = 'https://example.org/proxy:1234';
+    $ENV{'http_proxy'}  = 'http://example.org/proxy:1234';
+    is_deeply $importer->BUILD->{proxy},
+        {
+        http  => 'http://example.org/proxy:1234',
+        https => 'https://example.org/proxy:1234'
+        },
+        'got proxy from env';
+}
+
 done_testing;
